@@ -1,0 +1,6 @@
+{
+  "port" : 80,
+  "accept_header" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/webp,*/*;q=0.8",
+  "accept_encoding_header" : "gzip, deflate, br",
+  "x_requested_with_header" : "XMLHttpRequest"
+}
