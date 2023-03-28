@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"regexp"
 	"sync"
+	"sync/atomic"
 	"time"
 	"views-servive/config"
 	"views-servive/models"
@@ -36,35 +37,28 @@ func (v ViewsServiceImp) Boost(linkForBoost string) models.Response {
 	var (
 		wg      sync.WaitGroup
 		re      = regexp.MustCompile(`data-view="(\w+)"`)
-		counter int
+		counter int64
 	)
 
 	workingUrls := v.parseService.Parse()
-	ch := make(chan int, len(workingUrls))
 
 	wg.Add(len(workingUrls))
 
 	for _, workingUrl := range workingUrls {
 		go func(workingUrl *url.URL, re *regexp.Regexp) {
-			err := makeViews(workingUrl, re, linkForBoost, v.settings, ch)
+			defer wg.Done()
+			err := makeViews(workingUrl, re, linkForBoost, v.settings)
 			if err == nil {
+				atomic.AddInt64(&counter, 1)
 				log.Println(workingUrl)
 			}
 
-			defer wg.Done()
 		}(workingUrl, re)
 	}
 
 	wg.Wait()
 
 	log.Println("закончил накрутку")
-
-	for i := 0; i < len(workingUrls); i++ {
-		val := <-ch
-		counter += val
-	}
-
-	close(ch)
 
 	response := models.Response{
 		CountOfProxy: len(workingUrls),
@@ -74,7 +68,7 @@ func (v ViewsServiceImp) Boost(linkForBoost string) models.Response {
 	return response
 }
 
-func makeViews(workingUrl *url.URL, re *regexp.Regexp, linkForBoost string, settings config.Settings, ch chan int) error {
+func makeViews(workingUrl *url.URL, re *regexp.Regexp, linkForBoost string, settings config.Settings) error {
 	randomUA := browser.NewBrowser(browser.Client{}, browser.Cache{}).Random()
 
 	transport := &http.Transport{
@@ -89,7 +83,6 @@ func makeViews(workingUrl *url.URL, re *regexp.Regexp, linkForBoost string, sett
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s?embed=1", linkForBoost), nil)
 	if err != nil {
 		log.Println(err)
-		ch <- 0
 		return err
 	}
 
@@ -99,18 +92,15 @@ func makeViews(workingUrl *url.URL, re *regexp.Regexp, linkForBoost string, sett
 
 	resp, err := client.Do(request)
 	if err != nil {
-		ch <- 0
 		return err
 	}
 
 	err = acceptView(resp, re, settings, client, linkForBoost, randomUA)
 	if err != nil {
 		log.Println(err)
-		ch <- 0
 		return err
 	}
 
-	ch <- 1
 	return nil
 }
 
