@@ -60,6 +60,7 @@ func parseFirstSource(collector *colly.Collector, c1 chan []models.Proxy) {
 	})
 	collector.Visit("https://free-proxy-list.net")
 	c1 <- proxies
+	log.Println("закончил парсинг первого ресурса")
 }
 
 func parseSecondSource(collector *colly.Collector, c2 chan []models.Proxy) {
@@ -75,6 +76,7 @@ func parseSecondSource(collector *colly.Collector, c2 chan []models.Proxy) {
 	})
 	collector.Visit("https://www.vpnside.com/proxy/list/")
 	c2 <- proxies
+	log.Println("закончил парсинг второго ресурса")
 }
 
 func parseThirdSource(collector *colly.Collector, c3 chan []models.Proxy) {
@@ -90,6 +92,7 @@ func parseThirdSource(collector *colly.Collector, c3 chan []models.Proxy) {
 	})
 	collector.Visit("https://hidemy.name/en/proxy-list")
 	c3 <- proxies
+	log.Println("закончил парсинг третьего ресурса")
 }
 
 func parseFourthSource(collector *colly.Collector, c4 chan []models.Proxy) {
@@ -107,6 +110,7 @@ func parseFourthSource(collector *colly.Collector, c4 chan []models.Proxy) {
 	})
 	collector.Visit("https://proxy-store.com/ru/free-proxy")
 	c4 <- proxies
+	log.Println("закончил парсинг четвертого ресурса")
 }
 
 func parseFifthSource(collector *colly.Collector, c5 chan []models.Proxy) {
@@ -126,6 +130,7 @@ func parseFifthSource(collector *colly.Collector, c5 chan []models.Proxy) {
 	}
 
 	c5 <- proxies
+	log.Println("закончил парсинг пятого ресурса")
 }
 
 func parseSixthSource(collector *colly.Collector, c6 chan []models.Proxy) {
@@ -142,6 +147,7 @@ func parseSixthSource(collector *colly.Collector, c6 chan []models.Proxy) {
 	collector.Visit("https://proxyhub.me/en/ma-sock5-proxy-list.html")
 
 	c6 <- proxies
+	log.Println("закончил парсинг шестого ресурса")
 }
 
 func concat[T any](slices [][]T) []T {

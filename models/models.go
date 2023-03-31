@@ -6,6 +6,6 @@ type Proxy struct {
 }
 
 type Response struct {
-	CountOfProxy int `json:"CountOfProxy"`
-	SuccessCount int `json:"SuccessCount"`
+	CountOfProxy int   `json:"CountOfProxy"`
+	SuccessCount int64 `json:"SuccessCount"`
 }
